@@ -35,6 +35,8 @@ CAN_Initialization(&can_driver_config);
 	SchM_Init(&SchMConfig);
     /* Enable External Interrupts*/
     enableIrq();
+    /*Selection of type of Car*/
+    Light_Ctrl_HwConfig();
     /* SchM Start */
     SchM_Start();
 	/* Infinite loop - Should never reach this point */

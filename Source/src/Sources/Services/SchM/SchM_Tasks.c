@@ -24,8 +24,8 @@
 
 void SchM_3p125ms_Task(void)
 {
-	Security_Seed();
-	CanManager_SendMessage_12p5ms();
+	Decryption_Command();
+		
 }
 /*~E*/
 /*~A*/
@@ -33,7 +33,7 @@ void SchM_3p125ms_Task(void)
 
 void SchM_6p25ms_Task(void)
 {
-	//Test();
+
 }
 /*~E*/
 /*~A*/
@@ -41,7 +41,7 @@ void SchM_6p25ms_Task(void)
 
 void SchM_12p5ms_Task(void)
 {
-		CanManager_SendMessage_25ms();
+
 }
 /*~E*/
 /*~A*/
@@ -49,6 +49,7 @@ void SchM_12p5ms_Task(void)
 
 void SchM_25ms_Task(void)
 {
+
 }
 /*~E*/
 /*~A*/
@@ -64,7 +65,7 @@ void SchM_50ms_Task(void)
 
 void SchM_100ms_Task(void)
 {
-	Tests();
+
 }
 /*~E*/
 /*~E*/
