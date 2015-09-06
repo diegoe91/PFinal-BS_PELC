@@ -3,11 +3,11 @@
 /*============================================================================*/
 /*                        OBJECT SPECIFICATION                                */
 /*============================================================================*
-* C Source:         %template.c%
+* C Source:         mssg_decoder.c
 * Instance:         RPL_1
-* %version:         2 %
-* %created_by:      uid02495 %
-* %date_created:    Fri Jan  9 14:38:03 2004 %
+* %version:         1.2
+* %created_by:      Diego Flores
+* %date_created:    Tuesday Sep  1 14:38:03 2015
 *=============================================================================*/
 /* DESCRIPTION : C source template file                                       */
 /*============================================================================*/
@@ -19,7 +19,10 @@
 /*============================================================================*/
 /*  REVISION |   DATE      |                               |      AUTHOR      */
 /*----------------------------------------------------------------------------*/
-/*  1.0      | DD/MM/YYYY  |                               | Mr. Template     */
+/*  1.0      | 01/09/2015  |                               | Diego Flores     */
+/* Integration under Continuus CM                                             */
+/*============================================================================*/
+/*  1.2      | 04/09/2015  |                               | Diego Flores     */
 /* Integration under Continuus CM                                             */
 /*============================================================================*/
 
@@ -104,11 +107,11 @@ extern StatusType Status=
 /* Exported functions */
 /* ------------------ */
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Message_decoder
+ *  Description          :	This function decodes the CAN messages
+ *  Parameters           :  None
+ *  Return               :	None
+ *  Critical/explanation :  No
  **************************************************************/
 void Message_decoder(void)
 {
@@ -120,18 +123,21 @@ void Message_decoder(void)
 	static T_UBYTE lub_Checksum=0xFF;
 	T_UBYTE lub_Checksum_Calc=0xFF;
 	
-	rub_Messg_ID=Message[0];
-	lub_Parameter_Number=Message[1];	
-	lub_Parameter0=Message[2];
-	lub_Parameter1=Message[3];
-	lub_Parameter2=Message[4];
-	lub_Checksum=Message[5];
+	rub_Messg_ID=Message[0];                                /* Get first byte of the message */
+	lub_Parameter_Number=Message[1];	                    /* Get second byte of the message */
+	lub_Parameter0=Message[2];								/* Get third byte of the message */
+	lub_Parameter1=Message[3];								/* Get fourth byte of the message */
+	lub_Parameter2=Message[4];								/* Get fifth byte of the message */
+	lub_Checksum=Message[5];								/* Get sixth byte of the message */
 	
 	switch(rub_Messg_ID)
 	{
-		case STOP: 	   	lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0;
+		case STOP: 	   	
+						/* Checks the Checksum */
+						lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0; 
 						if(lub_Checksum == lub_Checksum_Calc)
-						{
+						{	
+							/* Checks the parameter0 to now if Stop command is active or inactive */
 	 						if(lub_Parameter0==0x0F)
 				   			{
 								Status.Active_Inactive=ACTIVATED;
@@ -145,16 +151,19 @@ void Message_decoder(void)
 			        	   		/* Do nothing */
 		               		}		
 						}
-						else
+						else	/* Wrong checksum */
 						{
 							rub_Messg_ID=0xFF;
 						}
 		               	
 						break;
 						
-		case TURN: 	    lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
+		case TURN: 	    
+						/* Checks the Checksum */
+						lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
 						if(lub_Checksum == lub_Checksum_Calc)
-						{
+						{	
+							/* Checks Parameter0 to know the behavior of the turn command */
 							if(lub_Parameter0 == 0x01)
 		           			{
 		           				Status.Turn_Mode=OFF;
@@ -171,10 +180,11 @@ void Message_decoder(void)
 			           		{
 		    	       			/* Do nothing */
 		        	   		}
+		        	   		/* take the value of parameters 1 and 2 to know the on time and off time values */
 							rub_ON_TIME=lub_Parameter1;
 		           			rub_OFF_TIME=lub_Parameter2;	
 						}
-						else
+						else	/* Wrong checksum */ 
 						{
 							rub_Messg_ID=0xFF;
 						}
@@ -182,9 +192,12 @@ void Message_decoder(void)
 						
 						break;
 						
-		case HAZARD:	lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
+		case HAZARD:	
+						/* Checks the Checksum */
+						lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
 						if(lub_Checksum == lub_Checksum_Calc)
 						{
+							/* Checks the parameter0 to now if Hazard command is active or inactive */
 							if(lub_Parameter0==0x0F)
 				   			{
 								Status.Active_Inactive=ACTIVATED;
@@ -197,22 +210,23 @@ void Message_decoder(void)
 		           			{
 		           				/* Do nothing */
 		           			}
-		           		 
+		           		 	/* take the value of parameters 1 and 2 to know the on time and off time values */
 		           			rub_ON_TIME=lub_Parameter1;
 		           			rub_OFF_TIME=lub_Parameter2;	
 						}
-						else
+						else	/* Wrong checksum */
 						{
 							rub_Messg_ID=0xFF;
 						}
-								        
-		           		
 						break;
 						
 						
-		case MAIN_LIGHTS:   lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0;
+		case MAIN_LIGHTS:   
+							/* Checks the Checksum */
+							lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0;
 							if(lub_Checksum == lub_Checksum_Calc)
 							{
+								/* Checks Parameter0 to know the behavior of the Main Lights */
 								rub_Main_Lights_Mode=lub_Parameter0;	
 							}
 							else
@@ -228,14 +242,12 @@ void Message_decoder(void)
 	}
 }
 
-/* Exported functions */
-/* ------------------ */
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Get_Messag_ID
+ *  Description          :  Return the value of the Message ID
+ *  Parameters           :  None
+ *  Return               :	T_UBYTE rub_Messg_ID
+ *  Critical/explanation :  No
  **************************************************************/
 
 T_UBYTE Get_Messag_ID(void)
@@ -244,14 +256,12 @@ T_UBYTE Get_Messag_ID(void)
 }
 
 
-/* Exported functions */
-/* ------------------ */
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Get_On_Time
+ *  Description          :	Return the value of On Time
+ *  Parameters           :  None
+ *  Return               :	T_UBYTE rub_ON_TIME
+ *  Critical/explanation :  No
  **************************************************************/
 
 T_UBYTE Get_On_Time(void)
@@ -259,14 +269,12 @@ T_UBYTE Get_On_Time(void)
 	return rub_ON_TIME;
 }
 
-/* Exported functions */
-/* ------------------ */
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Get_Off_Time
+ *  Description          :	Return the value of Off Time
+ *  Parameters           :  None
+ *  Return               :	T_UBYTE rub_OFF_TIME
+ *  Critical/explanation :  No
  **************************************************************/
 
 T_UBYTE Get_Off_Time(void)
@@ -274,14 +282,13 @@ T_UBYTE Get_Off_Time(void)
 	return rub_OFF_TIME;
 }
 
-/* Exported functions */
-/* ------------------ */
+
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Get_Active_Inactive_Status
+ *  Description          :	Return the value of the Status.Active_Inactive 
+ *  Parameters           :  None
+ *  Return               :	Status.Active_Inactive
+ *  Critical/explanation :  No
  **************************************************************/
 
 T_UBYTE Get_Active_Inactive_Status(void)
@@ -289,14 +296,13 @@ T_UBYTE Get_Active_Inactive_Status(void)
 	return Status.Active_Inactive;
 }
 
-/* Exported functions */
-/* ------------------ */
+
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Get_Turn_Mode_Status
+ *  Description          :	Return the value of Status.Turn_Mode
+ *  Parameters           :  None
+ *  Return               :	Status.Turn_Mode
+ *  Critical/explanation :  No
  **************************************************************/
 
 T_UBYTE Get_Turn_Mode_Status(void)
@@ -305,14 +311,12 @@ T_UBYTE Get_Turn_Mode_Status(void)
 }
 
 
-/* Exported functions */
-/* ------------------ */
 /**************************************************************
- *  Name                 :	export_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
+ *  Name                 :	Get_Main_Lights_Mode
+ *  Description          :  Return the value of rub_Main_Lights_Mode
+ *  Parameters           :  None
+ *  Return               :	rub_Main_Lights_Mode
+ *  Critical/explanation :  No
  **************************************************************/
 
 T_UBYTE Get_Main_Lights_Mode(void)
