@@ -1,13 +1,13 @@
 /*============================================================================*/
-/*                        SV C BC SOFTWARE GROUP                              */
+/*                        Continental AEP 2015                              */
 /*============================================================================*/
 /*                        OBJECT SPECIFICATION                                */
 /*============================================================================*
 * C Include:        %template.h%
 * Instance:         RPL_1
-* %version:         1 %
-* %created_by:      uid02495 %
-* %date_created:    Fri Feb 28 13:41:01 2003 %
+* %version:         1.1
+* %created_by:      Misael Alvarez Domínguez
+* %date_created:    Monday, July 13, 2015
 *=============================================================================*/
 /* DESCRIPTION : Header file template                                         */
 /*============================================================================*/
@@ -20,11 +20,11 @@
 /*  REVISION |   DATE      |                               |      AUTHOR      */
 /*----------------------------------------------------------------------------*/
 /*  1.0      | DD/MM/YYYY  | SAR/SIF/SCN_xxx               | Mr. Template     */
-/* Integration under Continuus CM                                             */
+/*  1.1      | 13/07/2015  |H file template implementation | Misael AD        */
 /*============================================================================*/
 
-#ifndef MAINLIG_H                               /* To avoid double inclusion */
-#define MAINLIG_H
+#ifndef ADC_H                               /* To avoid double inclusion */
+#define ADC_H
 
 /* Includes */
 /* -------- */
@@ -68,10 +68,12 @@
 
 /* Exported functions prototypes and macros */
 /* ---------------------------------------- */
-
+/*void disableWatchdog(void);*/
+extern void init_ADC0_P0(void);
+extern void ADC_Convertion(void);
+extern T_ULONG Get_ADC_Value(void);
 /* Functions prototypes */
-extern void Door_Debounce(void);
-extern T_UBYTE Get_Door_Debounce_Status(void);
+
 
 /* Functions macros */
 
@@ -80,5 +82,4 @@ extern T_UBYTE Get_Door_Debounce_Status(void);
 
 
 #endif
-
 

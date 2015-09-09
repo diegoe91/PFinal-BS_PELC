@@ -27,7 +27,8 @@
 /* -------- */
 #include "lights_control.h"
 #include "mssg_decoder.h"
-
+#include "GPIO.h"
+#include  "Light_Sensor.h"
 /* Functions macros, constants, types and datas         */
 /* ---------------------------------------------------- */
 /* Functions macros */
@@ -113,7 +114,7 @@ T_UBYTE rub_HW_Config= STANDARD;
  	}
  	else if (HWCONFIG_HE==ACTIVATED)
  	{
- 		rub_HW_Config = HIGH-END;
+ 		rub_HW_Config = HIGH_END;
  	}
  	else
  	{
@@ -178,33 +179,17 @@ static T_UBYTE lub_Command_ID = IDLE;
  {
   T_UBYTE lub_Parameter_Stop = Get_Active_Inactive_Status();
   
-   if (	lub_Parameter_Stop == ACTIVATED)  /*necesitamos diferenciar active_inacive stop, hazard etc??*/
-   {
-   		if (HW_Config == STANDARD)
+  		if (rub_HW_Config == STANDARD)
    		{
-   			Day_Stop_lights(ACTIVATED); 
+   			Standard_Stop_Lights(lub_Parameter_Stop); 
    		}
    		else 
    		{
-   			rub_STOP_Light = ACTIVATED;
+   			Stop_Lights(lub_Parameter_Stop);
    		}   		
-   }
-   if (	lub_Parameter_Stop == INACTIVATED)
-   {
-   		if (HW_Config == STANDARD)
-   		{
-   		    rub_DAY_STOP_Light = INACTIVATED; /*DAY_STOP light already refers to STD*/
-   		 	
-   		}
-   		else 
-   		{
-   			rub_STOP_Light = INACTIVATED;
-   		}
-   		
-   }
-  return (IDLE);
- 	
- }
+  return (IDLE); 
+  }
+  
  
  /* Exported functions */
 /* ------------------ */
@@ -219,40 +204,136 @@ static T_UBYTE lub_Command_ID = IDLE;
   
  T_UBYTE Command_Hazard (void)
  {
+ T_UBYTE lub_Parameter_Hazard = Get_Active_Inactive_Status();
+ T_UBYTE lub_Parameter_OnTime = Get_On_Time();
+ T_UBYTE lub_Parameter_OffTime = Get_Off_Time();
+ 
+	 if (lub_Parameter_Hazard == ACTIVATED)
+	 {
+	 	lub_Parameter_Hazard = BLINKER_HAZARD;
+	 }
+	 else
+	 {
+	 	lub_Parameter_Hazard = BLINKER_HAZARD_OFF;
+	 }
    
-   		if (HW_Config == STANDARD)
+   		if (rub_HW_Config == STANDARD)
    		{
-   			if (parameter == ACTIVATED)
-   			{	
-   			
-   			if (turn_parameter ==ACTIVATED)
-   			{
-   				rub_BLINKER_Light_TURN = INACTIVATED;
-   				rub_BLINKER_Light_HAZARD = ACTIVATED;
-   				rub_DAY_BLINKER_Light_TURN = INACTIVATED;
-   				rub_DAY_BLINKER_Light_HAZARD = ACTIVATED;
-   				
-   			}
-   			
-   		
-   		}
-   		else i
+   	
+   			Standard_Blinker_Lights(lub_Parameter_Hazard, lub_Parameter_OnTime , lub_Parameter_OffTime);			
+       	}
+   		else if (rub_HW_Config == HIGH_END)
    		{
-   			rub_STOP_Light = ACTIVATED;
-   		}   		
-   }
-   if (parameter == INACTIVATED)
-   {
-   		if (HW_Config == STANDARD)
+   			High_End_Blinker_Lights(lub_Parameter_Hazard, lub_Parameter_OnTime , lub_Parameter_OffTime);
+   		}   
+   		else
    		{
-   		    rub_DAY_STOP_Light = INACTIVATED; /*DAY_STOP light already refers to STD*/
-   		 	
-   		}
-   		else 
-   		{
-   			rub_STOP_Light = INACTIVATED;
-   		}
-   		
-   }
+   			Luxury_Blinker_Lights(lub_Parameter_Hazard, lub_Parameter_OnTime , lub_Parameter_OffTime);
+   		}		
+   
+  return (IDLE); 
 }
    
+   
+   
+ /* Exported functions */
+/* ------------------ */
+/**************************************************************
+ *  Name                 :	export_func
+ *  Description          :
+ *  Parameters           :  [Input, Output, Input / output]
+ *  Return               :
+ *  Critical/explanation :    [yes / No]
+ **************************************************************/
+ 
+  
+ T_UBYTE Command_Turn (void)
+ {
+ T_UBYTE lub_Parameter_Turn = Get_Turn_Mode_Status();
+ T_UBYTE lub_Parameter_OnTime = Get_On_Time();
+ T_UBYTE lub_Parameter_OffTime = Get_Off_Time();
+ 
+	 if (lub_Parameter_Turn == RIGHT)
+	 {
+	 	lub_Parameter_Turn = BLINKER_RIGHT;
+	 }
+	 else if (lub_Parameter_Turn == LEFT)
+	 {
+	 	lub_Parameter_Turn = BLINKER_LEFT;
+	 }
+	 else
+	 {
+	 	lub_Parameter_Turn = BLINKER_TURN_OFF;
+	 }
+   
+   		if (rub_HW_Config == STANDARD)
+   		{
+   	
+   			Standard_Blinker_Lights(lub_Parameter_Turn, lub_Parameter_OnTime , lub_Parameter_OffTime);			
+       	}
+   		else if (rub_HW_Config == HIGH_END)
+   		{
+   			High_End_Blinker_Lights(lub_Parameter_Turn, lub_Parameter_OnTime , lub_Parameter_OffTime);
+   		}   
+   		else
+   		{
+   			Luxury_Blinker_Lights(lub_Parameter_Turn, lub_Parameter_OnTime , lub_Parameter_OffTime);
+   		}		
+   
+  return (IDLE); 
+}
+
+
+
+   
+ /* Exported functions */
+/* ------------------ */
+/**************************************************************
+ *  Name                 :	export_func
+ *  Description          :
+ *  Parameters           :  [Input, Output, Input / output]
+ *  Return               :
+ *  Critical/explanation :    [yes / No]
+ **************************************************************/
+ 
+  
+ T_UBYTE Command_Mainlight (void)
+ {
+ T_UBYTE lub_Parameter_Mainlight = (T_UBYTE)Get_Main_Lights_Mode();
+ T_UBYTE lub_Threshold;
+ 
+	 if (lub_Parameter_Mainlight == MAIN_LIGHTS_DAY)
+	 {
+	 	Day_Lights(ACTIVATED);
+	 }
+	 else if (lub_Parameter_Mainlight == MAIN_LIGHTS_FULL)
+	 {
+	 	Low_Beam_Lights(ACTIVATED);
+	 	Day_Lights(ACTIVATED);
+	 }
+	 else if (lub_Parameter_Mainlight == MAIN_LIGHTS_AUTO)
+	 {
+	 	lub_Threshold = Get_Threshold();
+	 	if (lub_Threshold == DAY )
+	 	{
+	 			Day_Lights(INACTIVATED);
+	 			Low_Beam_Lights(INACTIVATED);
+	 	}
+	 	else if (lub_Threshold == SUNSET_SUNRISE )
+	 	{
+	 			Day_Lights(ACTIVATED);
+	 			Low_Beam_Lights(INACTIVATED);
+	 	}
+	 	else if (lub_Threshold == NIGHT )
+	 	{
+	 			Day_Lights(ACTIVATED);
+	 			Low_Beam_Lights(ACTIVATED);
+	 	}
+	 }
+	 else
+	 {
+	 	Day_Lights(INACTIVATED);
+	 	Low_Beam_Lights(INACTIVATED);
+	 }
+   return (IDLE); 
+}

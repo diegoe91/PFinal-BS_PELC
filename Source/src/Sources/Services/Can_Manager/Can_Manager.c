@@ -14,6 +14,9 @@
 /*~+:Import*/
 #include "Can_Manager.h"
 #include "GPIO.h"
+#include "lights_output.h"
+#include "main_lights.h"
+
 /*~E*/
 /*~A*/
 /*~+:Defines*/
@@ -28,12 +31,12 @@ struct CanTest
 /* Temporary CAN Messages */
 uint8_t dummy_msg0[8] = {0xCA,0x83,0x15,0x77,0x19,0x56,0x65,0x00};
 uint8_t dummy_msg1[8] = {0x00,0x65,0x56,0x19,0x77,0x15,0x83,0xCA};
-uint8_t dummy_msg2[2] = {0x01, 0x27};
+uint8_t dummy_msg2[8] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 uint8_t Message[8] = {0xFF, 0xFF, 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 CAN_PduType    pdu_handler4 = { 4, 8, dummy_msg0};
 CAN_PduType    pdu_handler5 = { 1, 6, dummy_msg1};
 CAN_PduType    pdu_handler6 = { 4, 2, dummy_msg2};
-CAN_PduType    pdu_handler7 = { 6, 8, dummy_msg2};
+CAN_PduType    pdu_handler7 = { 6, 3, dummy_msg2};
 CAN_PduType    pdu_handler1 = { 7, 1, dummy_msg2};
 uint32_t PduHandlerCnt0 = 0;
 uint32_t PduHandlerCnt6 = 0;
@@ -71,10 +74,7 @@ void Decryption_Command(void)
 	}
 	else
 	{
-		for(lub_Counter=0; lub_Counter<8; lub_Counter++)
-		{
-			Message[lub_Counter]=0;		
-		}
+		/* Do nothing */
 	}
 }
 
@@ -102,6 +102,15 @@ void CanManager_SendMessage_12p5ms(void)
 		CAN_SendFrame(pdu_handler7);
 		ResponceFlag=0;
 	}
+}
+
+void CAN_SendMessage_100ms(void)
+{
+	dummy_msg2[0]=Get_Door_Debounce_Status();
+	dummy_msg2[1]=Get_Low_Beam_Lights_Status();
+	dummy_msg2[2]=Get_Stop_Lights_Status();
+
+	CAN_SendFrame(pdu_handler7);
 }
 /*~E*/
 /*~A*/

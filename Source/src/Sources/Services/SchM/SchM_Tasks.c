@@ -14,8 +14,12 @@
 /*~+:Import*/
 #include "SchM_Tasks.h"
 #include "Can_Manager.h"
-#include "dummy.h"
-#include "GPIO.h"
+#include "Light_Sensor.h"
+#include "ADC.h"
+#include "mssg_decoder.h"
+#include "timer.h"
+
+
 /*~E*/
 /*~A*/
 /*~+:Scheduler Tasks*/
@@ -24,7 +28,7 @@
 
 void SchM_3p125ms_Task(void)
 {
-	Decryption_Command();
+	Door_Debounce();	
 		
 }
 /*~E*/
@@ -33,7 +37,9 @@ void SchM_3p125ms_Task(void)
 
 void SchM_6p25ms_Task(void)
 {
-
+	High_End_Blinker_Lights_Task();
+	Luxury_Blinker_Lights_Task();
+	Standard_Blinker_Lights_Task();
 }
 /*~E*/
 /*~A*/
@@ -41,7 +47,7 @@ void SchM_6p25ms_Task(void)
 
 void SchM_12p5ms_Task(void)
 {
-
+	Decryption_Command();
 }
 /*~E*/
 /*~A*/
@@ -49,7 +55,7 @@ void SchM_12p5ms_Task(void)
 
 void SchM_25ms_Task(void)
 {
-
+	lights_control_SM();
 }
 /*~E*/
 /*~A*/
@@ -57,7 +63,8 @@ void SchM_25ms_Task(void)
 
 void SchM_50ms_Task(void)
 {
-	
+	ADC_Convertion();
+	Light_Thresholds();
 }
 /*~E*/
 /*~A*/
@@ -65,7 +72,10 @@ void SchM_50ms_Task(void)
 
 void SchM_100ms_Task(void)
 {
-
+	Off_Counter();
+	On_Counter();
+	Message_decoder();
+	CAN_SendMessage_100ms();
 }
 /*~E*/
 /*~E*/

@@ -1,32 +1,32 @@
 /*============================================================================*/
-/*                        SV C CE SOFTWARE GROUP                              */
+/*                        Continental AEP 2015                              */
 /*============================================================================*/
 /*                        OBJECT SPECIFICATION                                */
 /*============================================================================*
-* C Source:         %template.c%
+* C Source:       	ADC.c
 * Instance:         RPL_1
-* %version:         2 %
-* %created_by:      uid02495 %
-* %date_created:    Fri Jan  9 14:38:03 2004 %
+* version:         	1.1
+* created_by:      	Diego Flores
+* date_created:    	Monday, Sep 07, 2015
 *=============================================================================*/
-/* DESCRIPTION : C source template file                                       */
+/* DESCRIPTION : C source init file                                           */
 /*============================================================================*/
-/* FUNCTION COMMENT : This file describes the C source template according to  */
-/* the new software platform                                                  */
+/* FUNCTION COMMENT : This file describes the initialization routines         */
+/*                                                  						  */
 /*                                                                            */
 /*============================================================================*/
 /*                               OBJECT HISTORY                               */
 /*============================================================================*/
 /*  REVISION |   DATE      |                               |      AUTHOR      */
 /*----------------------------------------------------------------------------*/
-/*  1.0      | DD/MM/YYYY  |                               | Mr. Template     */
-/* Integration under Continuus CM                                             */
+/*  1.1      | 07/09/2015  |C file template implementation | Diego Flores     */
 /*============================================================================*/
 
 /* Includes */
 /* -------- */
-#include "main_lights.h"
-#include "GPIO.h"
+#include "ADC.h"
+#include "MPC5606B.h"
+ 
 
 /* Functions macros, constants, types and datas         */
 /* ---------------------------------------------------- */
@@ -36,7 +36,7 @@
 /* Definition of constants                          */
 /*==================================================*/ 
 /* BYTE constants */
-
+T_ULONG rul_ADC_Result = 0;
 
 /* WORD constants */
 
@@ -62,13 +62,17 @@
 /*======================================================*/ 
 
 /* Private defines */
-#define BUTTON_PRESSED					1
-#define DBNCCOUNT_CFG					3
-#define DOOR_CKTIN						BUTTON_PRESS(BUTTON4)
-T_UBYTE rub_Open_CktDbnc=0;
+#define Output (uint16_t)0x200	//PCR_GPIO_OutputConfiguration
+#define Input  (uint16_t)0x100	//PCR_GPIO_InputConfiguration
+#define Analog (uint16_t)0x2000	//PCR_AnalogConfiguration
+
+	/* ADC Pins */
+#define PortB4 SIU.PCR[20].R	//ADC0_P0 
+
+#define ADC_EOC_IRQ				62
+
 /* Private functions prototypes */
 /* ---------------------------- */
- 
 
 /* Exported functions prototypes */
 /* ----------------------------- */
@@ -98,50 +102,46 @@ T_UBYTE rub_Open_CktDbnc=0;
 /* Exported functions */
 /* ------------------ */
 /**************************************************************
- *  Name                 :	Door_Debounce
- *  Description          :	Function that makes the debounce of the door
+ *  Name                 :	init_ADC0_P0
+ *  Description          :	Initialize ADC0_P0
+ *  Parameters           :	None
+ *  Return               :	None
+ *  Critical/explanation :	No
+ **************************************************************/
+void init_ADC0_P0(void)
+{
+  	PortB4 = Analog;				/* Initialize PB[4] as ADC0_P0 */
+  	ADC_0.MCR.R = 0x00000000;   	/* Initialize ADC0 for scan mode */
+  	ADC_0.NCMR0.R = 1;            /* Select ADC0_P0 input for conversion */
+  	ADC_0.CTR0.R = 0x00008606;    /* Conversion times for 32MHz ADClock */
+}
+
+/**************************************************************
+ *  Name                 : 	ADC_Convertion
+ *  Description          :	Function that makes the ADC convertion
  *  Parameters           :  None
  *  Return               :	None
  *  Critical/explanation :  No
  **************************************************************/
 
-void Door_Debounce(void)
- {  
- 	 
- 	static T_UBYTE 	lub_Open_DbncCount=0; 
-    /* checks if the open button was pressed */
-    if(DOOR_CKTIN == BUTTON_PRESSED)
-	{
-		lub_Open_DbncCount++;
-		/* Checks if the counter is more or equal than the debounce time */
-		if(lub_Open_DbncCount >= DBNCCOUNT_CFG)
-		{
-			/* Change the flag status to pressed */
-			rub_Open_CktDbnc=DOOR_CKTIN;
-		}
-		else
-		{
-			/* Do nothing */
-		}
-	}
-	/* Change the flag status to released and restart the counter */
-	else 
-	{
-		lub_Open_DbncCount=0;
-		rub_Open_CktDbnc=DOOR_CKTIN;
-	}
- }
- 
- /* Exported functions */
-/* ------------------ */
+void ADC_Convertion(void)
+{
+	ADC_0.MCR.B.NSTART = 1;
+	while (ADC_0.CDR[0].B.VALID != 1)		/* Wait for last scan to complete */
+    {}
+   	rul_ADC_Result = ADC_0.CDR[0].B.CDATA;
+}
+
+
 /**************************************************************
- *  Name                 :	Get_Door_Debounce_Status
- *  Description          :	Function that returns the Door status
+ *  Name                 : 	Get_ADC_Value
+ *  Description          :	Function that returnd the ADC result
  *  Parameters           :  None
- *  Return               :	rub_Open_CktDbnc
+ *  Return               :	rul_ADC_Result
  *  Critical/explanation :  No
  **************************************************************/
- T_UBYTE Get_Door_Debounce_Status(void)
+ 
+ T_ULONG Get_ADC_Value(void)
  {
- 	return rub_Open_CktDbnc;
+ 	return rul_ADC_Result;
  }

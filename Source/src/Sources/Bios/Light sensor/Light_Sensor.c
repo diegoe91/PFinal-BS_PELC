@@ -3,11 +3,11 @@
 /*============================================================================*/
 /*                        OBJECT SPECIFICATION                                */
 /*============================================================================*
-* C Source:         %template.c%
+* C Source:         Light_Sensor.c
 * Instance:         RPL_1
-* %version:         2 %
-* %created_by:      uid02495 %
-* %date_created:    Fri Jan  9 14:38:03 2004 %
+* version:         	1.0
+* created_by:      	Diego Flores
+* date_created:    	Tuesday Sep  08 09:28:03 2015
 *=============================================================================*/
 /* DESCRIPTION : C source template file                                       */
 /*============================================================================*/
@@ -19,14 +19,14 @@
 /*============================================================================*/
 /*  REVISION |   DATE      |                               |      AUTHOR      */
 /*----------------------------------------------------------------------------*/
-/*  1.0      | DD/MM/YYYY  |                               | Mr. Template     */
+/*  1.0      | 08/09/2015  |                               | Diego Flores     */
 /* Integration under Continuus CM                                             */
 /*============================================================================*/
 
 /* Includes */
 /* -------- */
-#include "main_lights.h"
-#include "GPIO.h"
+#include "Light_Sensor.h"
+#include "ADC.h"
 
 /* Functions macros, constants, types and datas         */
 /* ---------------------------------------------------- */
@@ -49,7 +49,7 @@
 /* Definition of RAM variables                          */
 /*======================================================*/ 
 /* BYTE RAM variables */
-
+T_UBYTE rub_Threshold=DAY;
 
 /* WORD RAM variables */
 
@@ -62,13 +62,15 @@
 /*======================================================*/ 
 
 /* Private defines */
-#define BUTTON_PRESSED					1
-#define DBNCCOUNT_CFG					3
-#define DOOR_CKTIN						BUTTON_PRESS(BUTTON4)
-T_UBYTE rub_Open_CktDbnc=0;
+#define LIGHT_63PERCENT				654
+#define LIGHT_60PERCENT				614
+#define LIGHT_33PERCENT				450
+#define LIGHT_30PERCENT				409
+
 /* Private functions prototypes */
 /* ---------------------------- */
- 
+
+
 
 /* Exported functions prototypes */
 /* ----------------------------- */
@@ -87,61 +89,83 @@ T_UBYTE rub_Open_CktDbnc=0;
 /* Private functions */
 /* ----------------- */
 /**************************************************************
- *  Name                 : private_func
- *  Description          :
- *  Parameters           :  [Input, Output, Input / output]
- *  Return               :
- *  Critical/explanation :    [yes / No]
- **************************************************************/
-
-
-/* Exported functions */
-/* ------------------ */
-/**************************************************************
- *  Name                 :	Door_Debounce
- *  Description          :	Function that makes the debounce of the door
+ *  Name                 : 	Light_Thresholds
+ *  Description          :	Function that checks the differents ADC values
+ 							to change the differents Thresholds 
  *  Parameters           :  None
  *  Return               :	None
  *  Critical/explanation :  No
  **************************************************************/
+void Light_Thresholds(void)
+{
+	static T_ULONG lul_ADC=0;
+	
+	lul_ADC=Get_ADC_Value(); /* Variable that gets ADC value */
+	
+	
+	switch(rub_Threshold)
+	{
+		case DAY:	
+					/* Checks if the light is less than 60 percent */
+					/* to change to the state SUNSET_SUNRISE */
+					if(lul_ADC <= LIGHT_60PERCENT)
+					{
+						rub_Threshold=SUNSET_SUNRISE;
+					}
+					else
+					{
+						rub_Threshold=DAY;
+					}
+			break;
+			
+		case SUNSET_SUNRISE:
+								/* Checks if the light is more than 63 percent */
+								/* to change to the state DAY */
+								if(lul_ADC >= LIGHT_63PERCENT)
+								{
+									rub_Threshold=DAY;
+								}
+								/* Checks if the light is less than 30 percent */
+								/* to change to the state NIGHT */
+								else if(lul_ADC <= LIGHT_30PERCENT)
+								{
+									rub_Threshold=NIGHT;
+								}
+								else
+								{
+									rub_Threshold=SUNSET_SUNRISE;
+								}
+			break;
+			
+		case NIGHT:
+					/* Checks if the light is more than 33 percent */
+					/* to change to the state SUNSET_SUNRISE */
+					if(lul_ADC >= LIGHT_33PERCENT)
+					{
+						rub_Threshold=SUNSET_SUNRISE;
+					}
+					else
+					{
+						rub_Threshold=NIGHT;
+					}
+			break;
+		
+		default:
+					rub_Threshold=DAY;
+			break;
+	}	
+}
 
-void Door_Debounce(void)
- {  
- 	 
- 	static T_UBYTE 	lub_Open_DbncCount=0; 
-    /* checks if the open button was pressed */
-    if(DOOR_CKTIN == BUTTON_PRESSED)
-	{
-		lub_Open_DbncCount++;
-		/* Checks if the counter is more or equal than the debounce time */
-		if(lub_Open_DbncCount >= DBNCCOUNT_CFG)
-		{
-			/* Change the flag status to pressed */
-			rub_Open_CktDbnc=DOOR_CKTIN;
-		}
-		else
-		{
-			/* Do nothing */
-		}
-	}
-	/* Change the flag status to released and restart the counter */
-	else 
-	{
-		lub_Open_DbncCount=0;
-		rub_Open_CktDbnc=DOOR_CKTIN;
-	}
- }
- 
- /* Exported functions */
-/* ------------------ */
+
 /**************************************************************
- *  Name                 :	Get_Door_Debounce_Status
- *  Description          :	Function that returns the Door status
+ *  Name                 :	Get_Threshold
+ *  Description          :	Function that returns the state of the Threshold
  *  Parameters           :  None
- *  Return               :	rub_Open_CktDbnc
+ *  Return               :	rub_Threshold
  *  Critical/explanation :  No
  **************************************************************/
- T_UBYTE Get_Door_Debounce_Status(void)
- {
- 	return rub_Open_CktDbnc;
- }
+ 
+T_UBYTE Get_Threshold(void)
+{
+	return rub_Threshold;
+}

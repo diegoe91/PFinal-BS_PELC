@@ -130,116 +130,84 @@ void Message_decoder(void)
 	lub_Parameter2=Message[4];								/* Get fifth byte of the message */
 	lub_Checksum=Message[5];								/* Get sixth byte of the message */
 	
-	switch(rub_Messg_ID)
+	/* Checks the Checksum */
+	lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
+	if(lub_Checksum == lub_Checksum_Calc)
 	{
-		case STOP: 	   	
-						/* Checks the Checksum */
-						lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0; 
-						if(lub_Checksum == lub_Checksum_Calc)
-						{	
-							/* Checks the parameter0 to now if Stop command is active or inactive */
-	 						if(lub_Parameter0==0x0F)
-				   			{
-								Status.Active_Inactive=ACTIVATED;
-		               		}
-		           	   		else if(lub_Parameter0==0x00)
-		           	   		{
-			         	  		Status.Active_Inactive=INACTIVATED;
-			     	       	}
-		 		   	       	else 
-			    	       	{
-			        	   		/* Do nothing */
-		               		}		
-						}
-						else	/* Wrong checksum */
-						{
-							rub_Messg_ID=0xFF;
-						}
-		               	
+		switch(rub_Messg_ID)
+		{
+			case STOP: 	   	 	
+						/* Checks the parameter0 to now if Stop command is active or inactive */
+	 					if(lub_Parameter0==0x0F)
+				   		{
+							Status.Active_Inactive=ACTIVATED;
+		               	}
+		           	   	else if(lub_Parameter0==0x00)
+		           	   	{
+			         		Status.Active_Inactive=INACTIVATED;
+			     	    }
+		 		   	    else 
+			    	    {
+			        		/* Do nothing */
+		               	}		
 						break;
-						
-		case TURN: 	    
-						/* Checks the Checksum */
-						lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
-						if(lub_Checksum == lub_Checksum_Calc)
-						{	
-							/* Checks Parameter0 to know the behavior of the turn command */
-							if(lub_Parameter0 == 0x01)
-		           			{
+									
+			case TURN: 	    
+						/* Checks Parameter0 to know the behavior of the turn command */
+						if(lub_Parameter0 == 0x01)
+		           		{
 		           				Status.Turn_Mode=OFF;
-		           			}
-		           			else if(lub_Parameter0 == 0x0A)
-		           			{
-		           				Status.Turn_Mode=LEFT;
-		           			}
-		           			else if(lub_Parameter0 == 0x0B)
-		           			{
-		           				Status.Turn_Mode=RIGHT;
-			           		}
-			           		else
-			           		{
-		    	       			/* Do nothing */
-		        	   		}
-		        	   		/* take the value of parameters 1 and 2 to know the on time and off time values */
-							rub_ON_TIME=lub_Parameter1;
-		           			rub_OFF_TIME=lub_Parameter2;	
-						}
-						else	/* Wrong checksum */ 
-						{
-							rub_Messg_ID=0xFF;
-						}
-		           		
-						
-						break;
-						
-		case HAZARD:	
-						/* Checks the Checksum */
-						lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
-						if(lub_Checksum == lub_Checksum_Calc)
-						{
-							/* Checks the parameter0 to now if Hazard command is active or inactive */
-							if(lub_Parameter0==0x0F)
-				   			{
-								Status.Active_Inactive=ACTIVATED;
-		           			}
-		           			else if(lub_Parameter0==0x00)
-		           			{
-		           				Status.Active_Inactive=INACTIVATED;
-		           			}
-		           			else 
-		           			{
-		           				/* Do nothing */
-		           			}
-		           		 	/* take the value of parameters 1 and 2 to know the on time and off time values */
-		           			rub_ON_TIME=lub_Parameter1;
-		           			rub_OFF_TIME=lub_Parameter2;	
-						}
-						else	/* Wrong checksum */
-						{
-							rub_Messg_ID=0xFF;
-						}
-						break;
-						
-						
-		case MAIN_LIGHTS:   
-							/* Checks the Checksum */
-							lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0;
-							if(lub_Checksum == lub_Checksum_Calc)
-							{
-								/* Checks Parameter0 to know the behavior of the Main Lights */
-								rub_Main_Lights_Mode=lub_Parameter0;	
-							}
-							else
-							{
-								rub_Messg_ID=0xFF;
-							} 
-						  
-		
+		           		}
+		           		else if(lub_Parameter0 == 0x0A)
+		           		{
+		           			Status.Turn_Mode=LEFT;
+		           		}
+		           		else if(lub_Parameter0 == 0x0B)
+		           		{
+		           			Status.Turn_Mode=RIGHT;
+			           	}
+			           	else
+			           	{
+		    	       		/* Do nothing */
+		        	   	}
+		        	   	/* take the value of parameters 1 and 2 to know the on time and off time values */
+						rub_ON_TIME=lub_Parameter1;
+		           		rub_OFF_TIME=lub_Parameter2;	
 					break;
+						
+			case HAZARD:	
+						/* Checks the parameter0 to now if Hazard command is active or inactive */
+						if(lub_Parameter0==0x0F)
+				   		{
+							Status.Active_Inactive=ACTIVATED;
+		           		}
+		           		else if(lub_Parameter0==0x00)
+		           		{
+		           			Status.Active_Inactive=INACTIVATED;
+		           		}
+		           		else 
+		           		{
+		           			/* Do nothing */
+		           		}
+		           	 	/* take the value of parameters 1 and 2 to know the on time and off time values */
+		           		rub_ON_TIME=lub_Parameter1;
+		           		rub_OFF_TIME=lub_Parameter2;	
+					break;
+						
+			case MAIN_LIGHTS:   
+							/* Checks Parameter0 to know the behavior of the Main Lights */
+							rub_Main_Lights_Mode=lub_Parameter0;	
+						break;
 					
-		default:	rub_Messg_ID=0xFF;
-					break;
+			default:	rub_Messg_ID=0x00;
+						break;
+		}	
 	}
+	else
+	{
+		rub_Messg_ID=0x00;
+	}
+	
 }
 
 /**************************************************************
@@ -323,3 +291,5 @@ T_UBYTE Get_Main_Lights_Mode(void)
 {
 	return rub_Main_Lights_Mode;
 }
+
+

@@ -26,6 +26,7 @@ extern void Can_Manager_PduHandler0(CAN_MessageDataType CanMessage);
 extern void Decryption_Command(void);
 extern void RX_Command(CAN_MessageDataType CanMessage);
 extern uint8_t Message[8];
+extern void CAN_SendMessage_100ms(void);
 
 extern void Tests(void);
 /*~E*/

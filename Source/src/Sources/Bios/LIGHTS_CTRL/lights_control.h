@@ -57,6 +57,14 @@ enum Blinker_Functions
 	BLINKER_TURN_OFF
 };
 
+enum HW_Configuration
+{
+	STANDARD,
+	HIGH_END,
+	LUXURY
+	
+};
+
 /*======================================================*/ 
 /* Definition of RAM variables                          */
 /*======================================================*/ 
@@ -82,6 +90,7 @@ extern T_UBYTE Command_Stop(void);
 extern T_UBYTE Command_Turn(void);
 extern T_UBYTE Command_Hazard(void);
 extern T_UBYTE Command_Mainlight(void);
+extern void lights_control_SM(void);
 /* Functions macros */
 
 

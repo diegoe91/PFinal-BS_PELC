@@ -62,6 +62,8 @@ T_UBYTE rub_High_End_Flag=DEACTIVATED;
 T_UBYTE rub_Luxury_Flag=DEACTIVATED;
 T_UBYTE rub_Standard_Flag=DEACTIVATED;
 T_UBYTE rub_Standard_DayL_Flag=DEACTIVATED;
+T_UBYTE rub_Low_Beam_Lights_Flag=DEACTIVATED;
+T_UBYTE rub_Stop_Lights_Flag=DEACTIVATED;
 
 T_UBYTE rub_On_Timer_flag=DEACTIVATED;
 T_UBYTE rub_Off_Timer_flag=DEACTIVATED;
@@ -193,12 +195,14 @@ void Low_Beam_Lights(T_UBYTE lub_On_Off)
 	{
 		LED_ON(FL_LBL_R);
 		LED_ON(FL_LBL_L);
+		rub_Low_Beam_Lights_Flag=ACTIVATED;
 	}
 	/* Checks if the command is Deactivated to turn Off Low Beam lights */
 	else if(lub_On_Off == DEACTIVATED)
 	{
 		LED_OFF(FL_LBL_R);
 		LED_OFF(FL_LBL_L);
+		rub_Low_Beam_Lights_Flag=DEACTIVATED;
 	}
 	else
 	{
@@ -1149,12 +1153,14 @@ void Standard_Day_lights(T_UBYTE lub_On_Off)
 	{
 		LED_ON(BL_STOPL_R);
  		LED_ON(BL_STOPL_L);
+ 		rub_Stop_Lights_Flag=ACTIVATED;
 	}
 	/* if the command is DEACTIVATED Turn the Stop lights off  */
 	else if(lub_On_Off == DEACTIVATED)
 	{
 		LED_OFF(BL_STOPL_R);
  		LED_OFF(BL_STOPL_L);
+ 		rub_Stop_Lights_Flag=DEACTIVATED;
 	}
 	else
 	{
@@ -1187,7 +1193,8 @@ void Standard_Day_lights(T_UBYTE lub_On_Off)
  		else
  		{
  			/* Do nothing */
- 		}	
+ 		}
+ 		rub_Stop_Lights_Flag=ACTIVATED;	
 	}
 	/* if the command is DEACTIVATED Turn the Stop lights off  */
 	else if(lub_On_Off == DEACTIVATED)
@@ -1200,6 +1207,7 @@ void Standard_Day_lights(T_UBYTE lub_On_Off)
  			LED_ON(BL_DAYSL_R);
  			LED_ON(BL_DAYSL_L);
  		}
+ 		rub_Stop_Lights_Flag=DEACTIVATED;
 	}
 	else
 	{
@@ -1233,4 +1241,30 @@ T_UBYTE TurnOnOff_OnTimer(void)
 T_UBYTE TurnOnOff_OffTimer(void)
 {
 	return rub_Off_Timer_flag;
+}
+
+/**************************************************************
+ *  Name                 :	Low_Beam_Lights_Status
+ *  Description          :	Return the Low Beam Lights Status
+ *  Parameters           :  None
+ *  Return               :	rub_Low_Beam_Lights_Flag
+ *  Critical/explanation :  No
+ **************************************************************/
+
+T_UBYTE Get_Low_Beam_Lights_Status(void)
+{
+	return rub_Low_Beam_Lights_Flag;
+}
+
+/**************************************************************
+ *  Name                 :	Stop_Lights_Status
+ *  Description          :	Return the Stop Lights Status
+ *  Parameters           :  None
+ *  Return               :	rub_Stop_Lights_Flag
+ *  Critical/explanation :  No
+ **************************************************************/
+
+T_UBYTE Get_Stop_Lights_Status(void)
+{
+	return rub_Stop_Lights_Flag;
 }

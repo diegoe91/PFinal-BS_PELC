@@ -3,11 +3,11 @@
 /*============================================================================*/
 /*                        OBJECT SPECIFICATION                                */
 /*============================================================================*
-* C Include:        %template.h%
-* Instance:         RPL_1
-* %version:         1 %
-* %created_by:      uid02495 %
-* %date_created:    Fri Feb 28 13:41:01 2003 %
+* C Include:        Light_Sensor.h
+* Instance:         RPL_
+* version:      	1
+* created_by:      	Diego Flores
+* date_created:    	Tuesday Sep 08 09:29:01 2015
 *=============================================================================*/
 /* DESCRIPTION : Header file template                                         */
 /*============================================================================*/
@@ -19,12 +19,12 @@
 /*============================================================================*/
 /*  REVISION |   DATE      |                               |      AUTHOR      */
 /*----------------------------------------------------------------------------*/
-/*  1.0      | DD/MM/YYYY  | SAR/SIF/SCN_xxx               | Mr. Template     */
+/*  1.0      | 08/09/2015  | SAR/SIF/SCN_xxx               | Diego Flores     */
 /* Integration under Continuus CM                                             */
 /*============================================================================*/
 
-#ifndef MAINLIG_H                               /* To avoid double inclusion */
-#define MAINLIG_H
+#ifndef LIGSENSOR_H                               /* To avoid double inclusion */
+#define LIGSENSOR_H
 
 /* Includes */
 /* -------- */
@@ -60,7 +60,12 @@
 
 
 /* LONGS and STRUCTURES */
-
+typedef enum
+{
+	DAY,
+	SUNSET_SUNRISE,
+	NIGHT
+}THRESHOLDS;
 
 /*======================================================*/ 
 /* close variable declaration sections                  */
@@ -70,8 +75,8 @@
 /* ---------------------------------------- */
 
 /* Functions prototypes */
-extern void Door_Debounce(void);
-extern T_UBYTE Get_Door_Debounce_Status(void);
+
+extern T_UBYTE Get_Threshold(void);
 
 /* Functions macros */
 

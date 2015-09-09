@@ -73,19 +73,22 @@
 /* ---------------------------------------- */
 
 /* Functions prototypes */ 
-extern void Day_Lights(T_UBYTE lub_On_Off);
-extern void Low_Beam_Lights(T_UBYTE lub_On_Off);
-extern void High_End_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE lub_Off_Time);
+extern void Day_Lights(T_UBYTE lub_On_Off);		/* High-End and Luxury configurations */
+extern void Low_Beam_Lights(T_UBYTE lub_On_Off); /* All configurations */
+extern void High_End_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE lub_Off_Time); /* High-End configuration */
 extern void High_End_Blinker_Lights_Task(void);
-extern void Luxury_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE lub_Off_Time);
+extern void Luxury_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE lub_Off_Time); /* Luxury configuration */
 extern void Luxury_Blinker_Lights_Task(void);
-extern void Standard_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE lub_Off_Time);
+extern void Standard_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE lub_Off_Time); /* Standard configuration */
 extern void Standard_Blinker_Lights_Task(void);
-extern void Standard_Day_lights(T_UBYTE lub_On_Off);
-extern void Stop_Lights(T_UBYTE lub_On_Off);
-extern void Standard_Stop_Lights(T_UBYTE lub_On_Off);
+extern void Standard_Day_lights(T_UBYTE lub_On_Off); /* Standard configuration */
+extern void Stop_Lights(T_UBYTE lub_On_Off); /* High-End and Luxury configurations */
+extern void Standard_Stop_Lights(T_UBYTE lub_On_Off); /* Standard configuration */
 extern T_UBYTE TurnOnOff_OnTimer(void);
 extern T_UBYTE TurnOnOff_OffTimer(void);
+extern T_UBYTE Get_Low_Beam_Lights_Status(void);
+extern T_UBYTE Get_Stop_Lights_Status(void);
+
 /* Functions macros */
 
 

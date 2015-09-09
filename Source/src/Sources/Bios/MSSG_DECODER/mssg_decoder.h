@@ -48,7 +48,13 @@ typedef enum
 	MAIN_LIGHTS	
 }Command;
 
-
+typedef enum
+{
+	MAIN_LIGHTS_OFF=0X01,
+	MAIN_LIGHTS_DAY,
+	MAIN_LIGHTS_FULL,
+	MAIN_LIGHTS_AUTO
+}MAIN_LIGHTS_COMMANDS;
 
 typedef struct
 {
