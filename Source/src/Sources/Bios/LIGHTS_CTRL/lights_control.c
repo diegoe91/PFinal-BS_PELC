@@ -3,11 +3,11 @@
 /*============================================================================*/
 /*                        OBJECT SPECIFICATION                                */
 /*============================================================================*
-* C Source:         %lights_control.c%
+* C Source:         lights_control.c
 * Instance:         RPL_1
-* %version:         1 %
-* %created_by:      ID 734144
-* %date_created:    Tues Sept  1  2015 %
+* version:          1.2
+* created_by:       David Rosales
+* date_created:     Tues Sept  1  2015 
 *=============================================================================*/
 /* DESCRIPTION : Main file for lights control        c                        */
 /*============================================================================*/
@@ -21,6 +21,9 @@
 /*----------------------------------------------------------------------------*/
 /*  1.0      | 07/09/2015  |                               | David Rosales    */
 /* Integration under Continuus CM                                             */
+/*============================================================================*/
+/*  1.2      | 09/09/2015  |                               | Diego Flores     */
+/* Bugs correction				                                              */
 /*============================================================================*/
 
 /* Includes */
@@ -381,25 +384,48 @@ static T_UBYTE lub_Command_ID = IDLE;
    return (IDLE); 
 }
 
+/**************************************************************
+ *  Name                 :	  Main_Ligths_Auto_Mode
+ *  Description          :    Logial Functions when Mainlights is in 
+ 							  Auto mode
+ *  Parameters           :    void
+ *  Return               :	  None	
+ *  Critical/explanation :    No
+ **************************************************************/
 
 void Main_Ligths_Auto_Mode(void)
 {
 	T_UBYTE lub_Threshold;
+	T_UBYTE lub_Standard_Blinker_Status= (T_UBYTE) Get_Standard_Blinker_Status();
+	static T_UBYTE lub_Day_Flag=INACTIVATED;
 	if(rub_Auto_Mode_Flag==ACTIVATED)
 	{
 		/*Get Light sensor value*/
 	 	lub_Threshold = Get_Threshold();
+	 	
 	 	/*If the sensor value indicates it is day light, do not turn on lights*/
 	 	if (lub_Threshold == DAY )
 	 	{
+	 	Low_Beam_Lights(INACTIVATED);
 	 		if (rub_HW_Config == STANDARD)
 	 	    {
-	 	    	Low_Beam_Lights(INACTIVATED);
-	 			Standard_Day_lights(INACTIVATED);
+	 	    	
+	 	    	if((lub_Standard_Blinker_Status==INACTIVATED) || (lub_Day_Flag==ACTIVATED))
+	 	    	{
+	 	    		Standard_Day_lights(INACTIVATED);
+	 	    		lub_Day_Flag=INACTIVATED;
+	 	    		
+	 	    	}
+	 	    	else
+	 	    	{
+	 	    		/* Do nothing */
+	 	    	}
+	 			
 	 	    }
 	 	    else
 	 	    {
-	 	    	Day_Lights(INACTIVATED);	
+	 	    	Day_Lights(INACTIVATED);
+	 	    		
 	 	    }	
 	 	}
 	 	/*If the sensor value indicates it is sunset light, turn on day and low beam lights*/
@@ -407,8 +433,10 @@ void Main_Ligths_Auto_Mode(void)
 	 	{
 	 	      if (rub_HW_Config == STANDARD)
 	 	      {
+	 	      	
 	 	      	Standard_Day_lights(ACTIVATED);
 	 	      	Low_Beam_Lights(INACTIVATED);
+	 	      	lub_Day_Flag=ACTIVATED;
 	 	      }
 	 	      else
 	 	      {
@@ -425,6 +453,7 @@ void Main_Ligths_Auto_Mode(void)
 	 	      {
 	 	      	Standard_Day_lights(ACTIVATED);
 	 	      	Low_Beam_Lights(ACTIVATED);
+	 	      	lub_Day_Flag=ACTIVATED;
 	 	      }
 	 	      else
 	 	      {
@@ -432,8 +461,7 @@ void Main_Ligths_Auto_Mode(void)
 	 			Low_Beam_Lights(ACTIVATED);
 	 	      }
 	 	}
-	 }	
-  
+	}
   	else
   	{
   		/* Do nothing */

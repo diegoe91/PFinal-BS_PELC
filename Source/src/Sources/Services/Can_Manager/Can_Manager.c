@@ -118,21 +118,7 @@ uint8_t ButtonPressFlag=0;
 /*~+:CanManager_SendMesage_25ms*/
 void CanManager_SendMessage_25ms(void)
 {
-	if(BUTTON_PRESS(BUTTON4) == 1)
-	{
-		if(ButtonPressFlag==0)
-		{
-			ButtonPressFlag=1;
-			CAN_SendFrame(pdu_handler6);
-			LED_ON(LED1);	
-		}
-			
-	}
-	else
-	{
-		ButtonPressFlag=0;
-		LED_OFF(LED1);
-	}	
+		
 }
 
 void Tests(void)

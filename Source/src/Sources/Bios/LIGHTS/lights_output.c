@@ -25,6 +25,9 @@
 /*  1.2      | 06/09/2015  |                               | Diego Flores     */
 /* Comments addition			                                              */
 /*============================================================================*/
+/*  1.3      | 09/09/2015  |                               | Diego Flores     */
+/* Bugs correction				                                              */
+/*============================================================================*/
 
 /* Includes */
 /* -------- */
@@ -64,9 +67,11 @@ T_UBYTE rub_Standard_Flag=DEACTIVATED;
 T_UBYTE rub_Standard_DayL_Flag=DEACTIVATED;
 T_UBYTE rub_Low_Beam_Lights_Flag=DEACTIVATED;
 T_UBYTE rub_Stop_Lights_Flag=DEACTIVATED;
-
+T_UBYTE rub_Standard_Blinker_Status=DEACTIVATED;
+T_UBYTE rub_on_off_Flag=ACTIVATED;
 T_UBYTE rub_On_Timer_flag=DEACTIVATED;
 T_UBYTE rub_Off_Timer_flag=DEACTIVATED;
+T_UBYTE rub_Turn_Flag=0;
 
 /* WORD RAM variables */
 
@@ -159,6 +164,8 @@ void Day_Lights(T_UBYTE lub_On_Off)
 	{
 		LED_ON(FL_DAYL_R);
 		LED_ON(FL_DAYL_L);
+		LED_ON(FL_DAYBL_R);
+		LED_ON(FL_DAYBL_L);
 		
 		LED_ON(BL_DAYL_R);
 		LED_ON(BL_DAYL_L);
@@ -168,6 +175,8 @@ void Day_Lights(T_UBYTE lub_On_Off)
 	{
 		LED_OFF(FL_DAYL_R);
 		LED_OFF(FL_DAYL_L);
+		LED_OFF(FL_DAYBL_R);
+		LED_OFF(FL_DAYBL_L);
 		
 		LED_OFF(BL_DAYL_R);
 		LED_OFF(BL_DAYL_L);
@@ -430,10 +439,9 @@ void High_End_Blinker_Lights_Task(void)
 											/* to turn on the blinker lights */
 											rub_Off_Timer_flag=DEACTIVATED;
 											lub_on_off_Flag=ACTIVATED;
-											lub_Parameter=rub_Parameter;
 											/* Checks if the new command is BLINKER_HAZARD_OFF to change */
 											/* the state machine to the previous state*/
-											if(lub_Parameter == BLINKER_HAZARD_OFF)
+											if(rub_Parameter == BLINKER_HAZARD_OFF)
 											{
 												/* checks if the flag is left to change the state to BLINKER_LEFT */
 												if(lub_Turn_Flag == LEFT)
@@ -447,24 +455,24 @@ void High_End_Blinker_Lights_Task(void)
 												}
 												else
 												{
-													/* Do nothing */
+													lub_Parameter=BLINKER_HAZARD_OFF;
 												}
 											}
 											/* Checks if the new command is BLINKER_TURN_OFF to change */
 											/* the turn flag to off*/
-											else if(lub_Parameter == BLINKER_TURN_OFF)
+											else if(rub_Parameter == BLINKER_TURN_OFF)
 											{
 												lub_Turn_Flag=OFF;
 											}
 											/* Checks if the new command is BLINKER_LEFT to change */
 											/* the turn flag to left */
-											else if(lub_Parameter == BLINKER_LEFT)
+											else if(rub_Parameter == BLINKER_LEFT)
 											{
 												lub_Turn_Flag=LEFT;
 											}
 											/* Checks if the new command is BLINKER_RIGHT to change */
 											/* the turn flag to RIGHT */
-											else if(lub_Parameter == BLINKER_RIGHT)
+											else if(rub_Parameter == BLINKER_RIGHT)
 											{
 												lub_Turn_Flag=RIGHT;
 											}
@@ -773,10 +781,9 @@ void Luxury_Blinker_Lights_Task(void)
 											/* to turn on the blinker lights */
 											rub_Off_Timer_flag=DEACTIVATED;
 											lub_on_off_Flag=ACTIVATED;
-											lub_Parameter=rub_Parameter;
 											/* Checks if the new command is BLINKER_HAZARD_OFF to change */
 											/* the state machine to the previous state*/
-											if(lub_Parameter == BLINKER_HAZARD_OFF)
+											if(rub_Parameter == BLINKER_HAZARD_OFF)
 											{
 												/* checks if the flag is left to change the state to BLINKER_LEFT */
 												if(lub_Turn_Flag == LEFT)
@@ -790,24 +797,24 @@ void Luxury_Blinker_Lights_Task(void)
 												}
 												else
 												{
-													/* Do nothing */
+													lub_Parameter=BLINKER_HAZARD_OFF;
 												}
 											}
 											/* Checks if the new command is BLINKER_LEFT to change */
 											/* the turn flag to left */
-											else if(lub_Parameter == BLINKER_TURN_OFF)
+											else if(rub_Parameter == BLINKER_TURN_OFF)
 											{
 												lub_Turn_Flag=OFF;
 											}
 											/* Checks if the new command is BLINKER_LEFT to change */
 											/* the turn flag to left */
-											else if(lub_Parameter == BLINKER_LEFT)
+											else if(rub_Parameter == BLINKER_LEFT)
 											{
 												lub_Turn_Flag=LEFT;
 											}
 											/* Checks if the new command is BLINKER_RIGHT to change */
 											/* the turn flag to RIGHT */
-											else if(lub_Parameter == BLINKER_RIGHT)
+											else if(rub_Parameter == BLINKER_RIGHT)
 											{
 												lub_Turn_Flag=RIGHT;
 											}
@@ -865,9 +872,7 @@ void Standard_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE
 void Standard_Blinker_Lights_Task(void)
 {
 	static T_UBYTE lub_Parameter=BLINKER_HAZARD_OFF;
-	static T_UBYTE lub_Turn_Flag=OFF;
 	static T_UBYTE lub_Hazard_Flag=DEACTIVATED;
-	static T_UBYTE lub_on_off_Flag=ACTIVATED;
 	static T_UBYTE lub_On_Timer= 0;
 	static T_UBYTE lub_Off_Timer= 0;
 	
@@ -893,15 +898,16 @@ void Standard_Blinker_Lights_Task(void)
 							
 			case BLINKER_RIGHT: 
 									/* checks if the flag is Activated to Turn on the blinker lights */
-									if(lub_on_off_Flag == ACTIVATED)
-									{
+									if(rub_on_off_Flag == ACTIVATED)
+									{	
+										rub_Turn_Flag=RIGHT;
 										/* Activates the On counter and checks if the On counter  */
 										/* reached the received time  */
 										rub_On_Timer_flag=ACTIVATED;
 										if(lub_On_Timer >= rub_On_Time)
 										{
 											/* Deactivetes the On counter and the on/off flag to turn off the blinker lights */
-											lub_on_off_Flag=DEACTIVATED;
+											rub_on_off_Flag=DEACTIVATED;
 											rub_On_Timer_flag=DEACTIVATED;
 										}
 										else
@@ -909,11 +915,16 @@ void Standard_Blinker_Lights_Task(void)
 											LED_ON(BL_BL1_R);
 											LED_ON(BL_BL2_R);
 											LED_ON(BL_BL3_R);
-											LED_ON(FL_DAYBL_R);
+											LED_ON(FL_DAYL_R);
+											if(rub_Standard_DayL_Flag==ACTIVATED)
+											{
+												LED_OFF(FL_DAYBL_R);
+											}
+											rub_Standard_Blinker_Status=ACTIVATED;
 										}
 									}
 									/* checks if the flag is Deactivated to Turn off the blinker lights */
-									else if(lub_on_off_Flag == DEACTIVATED)
+									else if(rub_on_off_Flag == DEACTIVATED)
 									{
 										/* Activates the Off counter and checks if the Off counter  */
 										/* reached the received time  */
@@ -923,7 +934,7 @@ void Standard_Blinker_Lights_Task(void)
 											/* Deactivates the Off counter and Activated the on/off flag */
 											/* to turn on the blinker lights */
 											rub_Off_Timer_flag=DEACTIVATED;
-											lub_on_off_Flag=ACTIVATED;
+											rub_on_off_Flag=ACTIVATED;
 											/* Checks if the new parameter is different to BLINKER_HAZARD_OFF*/
 											/* to change the state machine */
 											if(rub_Parameter == BLINKER_HAZARD_OFF)
@@ -932,16 +943,18 @@ void Standard_Blinker_Lights_Task(void)
 											}
 											else
 											{
-												lub_Parameter=rub_Parameter;	
+												lub_Parameter=rub_Parameter;
+													
 											}
 											/* Checks if the new command is BLINKER_HAZARD to save the turn status*/
 											if(lub_Parameter == BLINKER_HAZARD)
 											{
-												lub_Turn_Flag=RIGHT;
+												rub_Turn_Flag=RIGHT;
 											}
 											else
 											{
-												lub_Turn_Flag=OFF;	
+												rub_Turn_Flag=OFF;
+												rub_Standard_Blinker_Status=DEACTIVATED;	
 											}
 										}
 										else
@@ -949,7 +962,16 @@ void Standard_Blinker_Lights_Task(void)
 											LED_OFF(BL_BL1_R);
 											LED_OFF(BL_BL2_R);
 											LED_OFF(BL_BL3_R);
-											LED_OFF(FL_DAYBL_R);	
+											
+											if(rub_Standard_DayL_Flag==ACTIVATED)
+											{
+												LED_ON(FL_DAYBL_R);
+												LED_ON(FL_DAYL_R);
+											}
+											else
+											{
+												LED_OFF(FL_DAYL_R);
+											}	
 										}								
 									}
 								
@@ -957,26 +979,29 @@ void Standard_Blinker_Lights_Task(void)
 							
 			case BLINKER_LEFT:
 									/* checks if the flag is Activated to Turn on the blinker lights */
-									if(lub_on_off_Flag == ACTIVATED)
+									if(rub_on_off_Flag == ACTIVATED)
 									{
+										rub_Turn_Flag=LEFT;
 										/* Activates the On counter and checks if the On counter  */
 										/* reached the received time  */
 										rub_On_Timer_flag=ACTIVATED;
 										if(lub_On_Timer >= rub_On_Time)
 										{
-											lub_on_off_Flag=DEACTIVATED;
+											rub_on_off_Flag=DEACTIVATED;
 											rub_On_Timer_flag=DEACTIVATED;
 										}
 										else
 										{	
 											LED_ON(BL_BL1_L);
 											LED_ON(BL_BL2_L);
-											LED_ON(BL_BL3_L);
-											LED_ON(FL_DAYBL_L);
+											LED_ON(BL_BL3_L);;
+											LED_ON(FL_DAYL_L);
+											LED_OFF(FL_DAYBL_L);
+											rub_Standard_Blinker_Status=ACTIVATED;
 										}
 									}
 									/* checks if the flag is Deactivated to Turn off the blinker lights */
-									else if(lub_on_off_Flag == DEACTIVATED)
+									else if(rub_on_off_Flag == DEACTIVATED)
 									{
 										/* Activates the Off counter and checks if the Off counter  */
 										/* reached the received time  */
@@ -986,7 +1011,7 @@ void Standard_Blinker_Lights_Task(void)
 											/* Deactivates the Off counter and Activated the on/off flag */
 											/* to turn on the blinker lights */
 											rub_Off_Timer_flag=DEACTIVATED;
-											lub_on_off_Flag=ACTIVATED;
+											rub_on_off_Flag=ACTIVATED;
 											/* Checks if the new parameter is different to BLINKER_HAZARD_OFF*/
 											/* to change the state machine */
 											if(rub_Parameter == BLINKER_HAZARD_OFF)
@@ -1000,11 +1025,12 @@ void Standard_Blinker_Lights_Task(void)
 											/* Checks if the new command is BLINKER_HAZARD to save the turn status*/
 											if(lub_Parameter == BLINKER_HAZARD)
 											{
-												lub_Turn_Flag=LEFT;
+												rub_Turn_Flag=LEFT;
 											}
 											else
 											{
-												lub_Turn_Flag=OFF;	
+												rub_Turn_Flag=OFF;
+												rub_Standard_Blinker_Status=DEACTIVATED;	
 											}
 										}
 										else
@@ -1012,21 +1038,29 @@ void Standard_Blinker_Lights_Task(void)
 											LED_OFF(BL_BL1_L);
 											LED_OFF(BL_BL2_L);
 											LED_OFF(BL_BL3_L);
-											LED_OFF(FL_DAYBL_L);	
+											if(rub_Standard_DayL_Flag==ACTIVATED)
+											{
+												LED_ON(FL_DAYBL_R);
+												LED_ON(FL_DAYL_R);
+											}
+											else
+											{
+												LED_OFF(FL_DAYL_R);
+											}		
 										}								
 									}
 							break;
 							
 			case BLINKER_HAZARD:
 									/* checks if the flag is Activated to Turn on the blinker lights */
-									if(lub_on_off_Flag == ACTIVATED)
+									if(rub_on_off_Flag == ACTIVATED)
 									{
 										/* Activates the On counter and checks if the On counter  */
 										/* reached the received time  */
 										rub_On_Timer_flag=ACTIVATED;
 										if(lub_On_Timer >= rub_On_Time)
 										{
-											lub_on_off_Flag=DEACTIVATED;
+											rub_on_off_Flag=DEACTIVATED;
 											rub_On_Timer_flag=DEACTIVATED;
 										}
 										else
@@ -1034,16 +1068,20 @@ void Standard_Blinker_Lights_Task(void)
 											LED_ON(BL_BL1_R);
 											LED_ON(BL_BL2_R);
 											LED_ON(BL_BL3_R);
-											LED_ON(FL_DAYBL_R);
+											LED_ON(FL_DAYL_R);
 											
 											LED_ON(BL_BL1_L);
 											LED_ON(BL_BL2_L);
-											LED_ON(BL_BL3_L);
-											LED_ON(FL_DAYBL_L);
+											LED_ON(BL_BL3_L);;
+											LED_ON(FL_DAYL_L);
+											
+											LED_OFF(FL_DAYBL_L);
+											LED_OFF(FL_DAYBL_R);	
+											rub_Standard_Blinker_Status=ACTIVATED;
 										}
 									}
 									/* checks if the flag is Deactivated to Turn off the blinker lights */
-									else if(lub_on_off_Flag == DEACTIVATED)
+									else if(rub_on_off_Flag == DEACTIVATED)
 									{
 										/* Activates the Off counter and checks if the Off counter  */
 										/* reached the received time  */									
@@ -1053,44 +1091,44 @@ void Standard_Blinker_Lights_Task(void)
 											/* Deactivates the Off counter and Activated the on/off flag */
 											/* to turn on the blinker lights */
 											rub_Off_Timer_flag=DEACTIVATED;
-											lub_on_off_Flag=ACTIVATED;
-											lub_Parameter=rub_Parameter;
+											rub_on_off_Flag=ACTIVATED;
 											/* Checks if the new command is BLINKER_HAZARD_OFF to change */
 											/* the state machine to the previous state*/
-											if(lub_Parameter == BLINKER_HAZARD_OFF)
+											if(rub_Parameter == BLINKER_HAZARD_OFF)
 											{
 												/* checks if the flag is left to change the state to BLINKER_LEFT */
-												if(lub_Turn_Flag == LEFT)
+												if(rub_Turn_Flag == LEFT)
 												{
 													lub_Parameter=BLINKER_LEFT;
 												}
 												/* checks if the flag is right to change the state to BLINKER_RIGHT */
-												else if(lub_Turn_Flag == RIGHT)
+												else if(rub_Turn_Flag == RIGHT)
 												{
-													lub_Parameter=BLINKER_LEFT;	
+													lub_Parameter=BLINKER_RIGHT;	
 												}
 												else
 												{
-													/* Do nothing */
+													lub_Parameter=BLINKER_HAZARD_OFF;
+													rub_Standard_Blinker_Status=DEACTIVATED;
 												}
 											}
 											/* Checks if the new command is BLINKER_TURN_OFF to change */
 											/* the turn flag to off*/
-											else if(lub_Parameter == BLINKER_TURN_OFF)
+											else if(rub_Parameter == BLINKER_TURN_OFF)
 											{
-												lub_Turn_Flag=OFF;
+												rub_Turn_Flag=OFF;		
 											}
 											/* Checks if the new command is BLINKER_LEFT to change */
 											/* the turn flag to left */
-											else if(lub_Parameter == BLINKER_LEFT)
+											else if(rub_Parameter == BLINKER_LEFT)
 											{
-												lub_Turn_Flag=LEFT;
+												rub_Turn_Flag=LEFT;
 											}
 											/* Checks if the new command is BLINKER_RIGHT to change */
 											/* the turn flag to RIGHT */
-											else if(lub_Parameter == BLINKER_RIGHT)
+											else if(rub_Parameter == BLINKER_RIGHT)
 											{
-												lub_Turn_Flag=RIGHT;
+												rub_Turn_Flag=RIGHT;
 											}
 											else
 											{
@@ -1102,12 +1140,24 @@ void Standard_Blinker_Lights_Task(void)
 											LED_OFF(BL_BL1_R);
 											LED_OFF(BL_BL2_R);
 											LED_OFF(BL_BL3_R);
-											LED_OFF(FL_DAYBL_R);
+											LED_OFF(FL_DAYL_R);
 											
 											LED_OFF(BL_BL1_L);
 											LED_OFF(BL_BL2_L);
 											LED_OFF(BL_BL3_L);
-											LED_OFF(FL_DAYBL_L);	
+											LED_OFF(FL_DAYL_L);
+											
+											if(rub_Standard_DayL_Flag==ACTIVATED)
+											{
+												LED_ON(FL_DAYBL_L);
+												LED_ON(FL_DAYBL_R);
+												LED_ON(FL_DAYL_L);
+												LED_ON(FL_DAYL_R);	
+											}
+											else
+											{
+												/* Do nothing */
+											}
 										}								
 									}
 							break;
@@ -1132,23 +1182,42 @@ void Standard_Day_lights(T_UBYTE lub_On_Off)
 	if(lub_On_Off == ACTIVATED)
 	{
 			
-		rub_Standard_DayL_Flag=ACTIVATED;
-		LED_ON(FL_DAYL_R);
-		LED_ON(FL_DAYL_L);
+		if(rub_Standard_DayL_Flag==DEACTIVATED)
+		{
+			rub_Standard_DayL_Flag=ACTIVATED;
+			LED_ON(FL_DAYBL_R);
+			LED_ON(FL_DAYL_R);
+			LED_ON(FL_DAYL_L);
+			LED_ON(FL_DAYBL_L);
 		
-		LED_ON(BL_DAYSL_R);
-		LED_ON(BL_DAYSL_R);
+		
+		
+		
+			LED_ON(BL_DAYSL_R);
+			LED_ON(BL_DAYSL_L);
+		}
+		else
+		{
+			
+		}
+			
 	}
 	/* if the command is DEACTIVATED Turn the Standard day lights off  */
 	else if(lub_On_Off == DEACTIVATED)
 	{
-		/* and deactivates rub_Standard_DayL_Flag to control the stop lights */
-		rub_Standard_DayL_Flag=DEACTIVATED;
-		LED_OFF(FL_DAYL_R);
-		LED_OFF(FL_DAYL_L);
+		if(rub_Standard_DayL_Flag==ACTIVATED)
+		{
+			/* and deactivates rub_Standard_DayL_Flag to control the stop lights */
+			rub_Standard_DayL_Flag=DEACTIVATED;
+			LED_OFF(FL_DAYL_R);
+			LED_OFF(FL_DAYL_L);
+			LED_OFF(FL_DAYBL_L);
+			LED_OFF(FL_DAYBL_R);
 		
-		LED_OFF(BL_DAYSL_R);
-		LED_OFF(BL_DAYSL_R);
+			LED_OFF(BL_DAYSL_R);
+			LED_OFF(BL_DAYSL_L);
+		}
+		
 	}
 	else
 	{
@@ -1286,4 +1355,17 @@ T_UBYTE Get_Low_Beam_Lights_Status(void)
 T_UBYTE Get_Stop_Lights_Status(void)
 {
 	return rub_Stop_Lights_Flag;
+}
+
+/**************************************************************
+ *  Name                 :	Stop_Lights_Status
+ *  Description          :	Return the Stop Lights Status
+ *  Parameters           :  None
+ *  Return               :	rub_Stop_Lights_Flag
+ *  Critical/explanation :  No
+ **************************************************************/
+ 
+T_UBYTE Get_Standard_Blinker_Status(void)
+{
+	return rub_Standard_Blinker_Status;
 }

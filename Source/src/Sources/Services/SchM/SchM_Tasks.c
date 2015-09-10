@@ -40,6 +40,7 @@ void SchM_6p25ms_Task(void)
 	High_End_Blinker_Lights_Task();
 	Luxury_Blinker_Lights_Task();
 	Standard_Blinker_Lights_Task();
+	Main_Ligths_Auto_Mode();
 }
 /*~E*/
 /*~A*/
@@ -65,7 +66,6 @@ void SchM_50ms_Task(void)
 {
 	ADC_Convertion();
 	Light_Thresholds();
-	Main_Ligths_Auto_Mode();
 }
 /*~E*/
 /*~A*/

@@ -62,7 +62,7 @@ T_UBYTE rub_Threshold=DAY;
 /*======================================================*/ 
 
 /* Private defines */
-#define LIGHT_63PERCENT				654
+#define LIGHT_63PERCENT				640
 #define LIGHT_60PERCENT				614
 #define LIGHT_33PERCENT				450
 #define LIGHT_30PERCENT				409

@@ -88,6 +88,7 @@ extern T_UBYTE TurnOnOff_OnTimer(void);
 extern T_UBYTE TurnOnOff_OffTimer(void);
 extern T_UBYTE Get_Low_Beam_Lights_Status(void);
 extern T_UBYTE Get_Stop_Lights_Status(void);
+extern T_UBYTE Get_Standard_Blinker_Status(void);
 
 /* Functions macros */
 
