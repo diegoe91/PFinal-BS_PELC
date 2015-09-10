@@ -65,6 +65,7 @@ void SchM_50ms_Task(void)
 {
 	ADC_Convertion();
 	Light_Thresholds();
+	Main_Ligths_Auto_Mode();
 }
 /*~E*/
 /*~A*/

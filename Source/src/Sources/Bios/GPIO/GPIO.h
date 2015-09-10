@@ -31,6 +31,7 @@
 #define LED3       					70
 #define LED4        				71
 #define BUTTON4						67
+#define SWITCH1						102
 
 #define GPIO_PA0					0
 #define GPIO_PA1					1
@@ -55,6 +56,7 @@
 #define GPIO_PC6					38
 #define GPIO_PC7					39
 #define GPIO_PC8					40
+
 
 
 

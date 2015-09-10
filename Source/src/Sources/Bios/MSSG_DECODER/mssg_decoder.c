@@ -31,6 +31,7 @@
 #include "mssg_decoder.h"
 #include "typedefs.h"
 #include "Can_Manager.h"
+#include "GPIO.h"
 
 /* Functions macros, constants, types and datas         */
 /* ---------------------------------------------------- */
@@ -53,7 +54,7 @@
 /* Definition of RAM variables                          */
 /*======================================================*/ 
 /* BYTE RAM variables */
-T_UBYTE rub_Messg_ID=0xFF;
+T_UBYTE rub_Messg_ID=0x00;
 T_UBYTE rub_ON_TIME=0;
 T_UBYTE rub_OFF_TIME=0;
 T_UBYTE rub_Main_Lights_Mode;
@@ -72,7 +73,7 @@ extern StatusType Status=
 /*======================================================*/ 
 
 /* Private defines */
-
+#define CHECKSUM_SELECTOR				SWITCH1
 
 /* Private functions prototypes */
 /* ---------------------------- */
@@ -132,7 +133,7 @@ void Message_decoder(void)
 	
 	/* Checks the Checksum */
 	lub_Checksum_Calc=rub_Messg_ID^lub_Parameter_Number^lub_Parameter0^lub_Parameter1^lub_Parameter2;
-	if(lub_Checksum == lub_Checksum_Calc)
+	if((BUTTON_PRESS(CHECKSUM_SELECTOR) == ACTIVATED) || (lub_Checksum == lub_Checksum_Calc))
 	{
 		switch(rub_Messg_ID)
 		{
@@ -156,23 +157,26 @@ void Message_decoder(void)
 						/* Checks Parameter0 to know the behavior of the turn command */
 						if(lub_Parameter0 == 0x01)
 		           		{
-		           				Status.Turn_Mode=OFF;
+		           			Status.Turn_Mode=OFF;
 		           		}
 		           		else if(lub_Parameter0 == 0x0A)
 		           		{
-		           			Status.Turn_Mode=LEFT;
+		           			Status.Turn_Mode=RIGHT;
+		           			/* take the value of parameters 1 and 2 to know the on time and off time values */
+							rub_ON_TIME=lub_Parameter1;
+		           			rub_OFF_TIME=lub_Parameter2;
 		           		}
 		           		else if(lub_Parameter0 == 0x0B)
 		           		{
-		           			Status.Turn_Mode=RIGHT;
+		           			Status.Turn_Mode=LEFT;
+		           			/* take the value of parameters 1 and 2 to know the on time and off time values */
+							rub_ON_TIME=lub_Parameter1;
+		           			rub_OFF_TIME=lub_Parameter2;
 			           	}
 			           	else
 			           	{
 		    	       		/* Do nothing */
-		        	   	}
-		        	   	/* take the value of parameters 1 and 2 to know the on time and off time values */
-						rub_ON_TIME=lub_Parameter1;
-		           		rub_OFF_TIME=lub_Parameter2;	
+		        	   	}	
 					break;
 						
 			case HAZARD:	
@@ -180,6 +184,9 @@ void Message_decoder(void)
 						if(lub_Parameter0==0x0F)
 				   		{
 							Status.Active_Inactive=ACTIVATED;
+							/* take the value of parameters 1 and 2 to know the on time and off time values */
+		           			rub_ON_TIME=lub_Parameter1;
+		           			rub_OFF_TIME=lub_Parameter2;
 		           		}
 		           		else if(lub_Parameter0==0x00)
 		           		{
@@ -188,10 +195,7 @@ void Message_decoder(void)
 		           		else 
 		           		{
 		           			/* Do nothing */
-		           		}
-		           	 	/* take the value of parameters 1 and 2 to know the on time and off time values */
-		           		rub_ON_TIME=lub_Parameter1;
-		           		rub_OFF_TIME=lub_Parameter2;	
+		           		}	
 					break;
 						
 			case MAIN_LIGHTS:   

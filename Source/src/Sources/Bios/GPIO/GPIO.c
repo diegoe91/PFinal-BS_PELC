@@ -197,9 +197,11 @@ void vfnGPIO_LED_Init(void)
 	vfnGPIO_Init_channel(GPIO_PC5,GPIO_OUTPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC5 --> output*/
 	vfnGPIO_Output (GPIO_PC5, 0);		
 	
-	vfnGPIO_Init_channel(GPIO_PC6,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC6 --> output*/
-	vfnGPIO_Init_channel(GPIO_PC7,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC7 --> output*/
-	vfnGPIO_Init_channel(GPIO_PC8,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC8 --> output*/
+	vfnGPIO_Init_channel(GPIO_PC6,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC6 --> input*/
+	vfnGPIO_Init_channel(GPIO_PC7,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC7 --> input*/
+	vfnGPIO_Init_channel(GPIO_PC8,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* PC8 --> input*/
+	vfnGPIO_Init_channel(BUTTON4,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /*  BUTTON4--> input*/
+	vfnGPIO_Init_channel(SWITCH1,GPIO_INPUT,GPIO_OPEN_DRAIN_DISABLE);  /* SWITCH1 --> input*/
 }
 
 /****************************************************************************************************/

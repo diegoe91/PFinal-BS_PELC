@@ -244,9 +244,12 @@ void High_End_Blinker_Lights_Task(void)
 	static T_UBYTE lub_Turn_Flag=OFF;
 	static T_UBYTE lub_Hazard_Flag=DEACTIVATED;
 	static T_UBYTE lub_on_off_Flag=ACTIVATED;
+	static T_UBYTE lub_On_Timer= 0;
+	static T_UBYTE lub_Off_Timer= 0;
+	
 	/* Gets the counters of On time and Off time */
-	T_UBYTE lub_On_Timer= (T_UBYTE) Get_On_Counter();
-	T_UBYTE lub_Off_Timer= (T_UBYTE) Get_Off_Counter();
+	lub_On_Timer= (T_UBYTE) Get_On_Counter();
+	lub_Off_Timer= (T_UBYTE) Get_Off_Counter();
 	/* Checks if the flag was activated to turn on the blinker lights in this mode */
 	if(rub_High_End_Flag==ACTIVATED)
 	{
@@ -484,7 +487,8 @@ void High_End_Blinker_Lights_Task(void)
 										}								
 									}
 							break;
-						
+				default: lub_Parameter=rub_Parameter;
+					break;						
 		}
 	}
 	
@@ -516,15 +520,18 @@ void Luxury_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE l
  **************************************************************/
 void Luxury_Blinker_Lights_Task(void)
 {
-	static T_UBYTE lub_Parameter;
+	static T_UBYTE lub_Parameter=BLINKER_HAZARD_OFF;
 	static T_UBYTE lub_Turn_Flag=OFF;
 	static T_UBYTE lub_Hazard_Flag=DEACTIVATED;
 	static T_UBYTE lub_on_off_Flag=ACTIVATED;
 	static T_UBYTE lub_Counter=0;
 	static T_UBYTE lub_On_Timer_Flag=0;
+	static T_UBYTE lub_On_Timer;
+	static T_UBYTE lub_Off_Timer;
+	
 	/* Gets the counters of On time and Off time */
-	T_UBYTE lub_On_Timer= (T_UBYTE) Get_On_Counter();
-	T_UBYTE lub_Off_Timer= (T_UBYTE) Get_Off_Counter();
+	lub_On_Timer= (T_UBYTE) Get_On_Counter();
+	lub_Off_Timer= (T_UBYTE) Get_Off_Counter();
 	/* Checks if the flag was activated to turn on the blinker lights in this mode */
 	if(rub_Luxury_Flag==ACTIVATED)
 	{
@@ -547,23 +554,15 @@ void Luxury_Blinker_Lights_Task(void)
 									if(lub_on_off_Flag == ACTIVATED)
 									{
 										/* Activates the On counter and checks if the On counter  */
-										/* reached the received time to increse the counter */
-										if(rub_On_Time==0)
-										{
-											rub_On_Timer_flag=ACTIVATED;
-											lub_On_Timer_Flag=ACTIVATED;	
-										}
-										else
-										{
-											/* Do nothing */
-										}
+										/* reached the received time  */
+										rub_On_Timer_flag=ACTIVATED;
 										/* Checks if the on counter reached the received time and if it enters for first time */
-										if((lub_On_Timer >= rub_On_Time) && (lub_On_Timer_Flag==ACTIVATED))
+										if(lub_On_Timer >= rub_On_Time)
 										{
 											/* increse the counter to turn on the leds in a sequence */
 											lub_Counter++;
-											rub_On_Timer_flag=RESTART;
-											lub_On_Timer_Flag=DEACTIVATED;
+											lub_on_off_Flag=DEACTIVATED;
+											rub_On_Timer_flag=DEACTIVATED;
 										}
 										else
 										{
@@ -572,22 +571,24 @@ void Luxury_Blinker_Lights_Task(void)
 											{
 												/* Turn on the first led */
 												case 0: LED_ON(BL_BL1_R);
-														LED_ON(FL_BL_R);
+														
 													break;
 												/* Turn on the second led */	
 												case 1: LED_ON(BL_BL2_R);
-														LED_OFF(FL_BL_R);
+														
 													break;
 												/* Turn on the third led */	
 												case 2: LED_ON(BL_BL3_R);
-														LED_ON(FL_BL_R);
+														
 													break;
 												/* Restart the counters */
-												case 3: lub_on_off_Flag=DEACTIVATED;
-														rub_On_Timer_flag=DEACTIVATED;
+												case 3: 
 														lub_Counter=0;
+													break;
+												default: lub_Counter=0;
 													break;			
 											}
+											LED_ON(FL_BL_R);
 										}
 									}
 									/* checks if the flag is Deactivated to Turn off the blinker lights */
@@ -608,9 +609,13 @@ void Luxury_Blinker_Lights_Task(void)
 											{
 												/* Do nothing*/
 											}
-											else
+											else if(lub_Counter==0)
 											{
 												lub_Parameter=rub_Parameter;	
+											}
+											else
+											{
+												/* Do nothing */
 											}
 											/* Checks if the new command is BLINKER_HAZARD to save the turn status*/
 											if(lub_Parameter == BLINKER_HAZARD)
@@ -624,9 +629,17 @@ void Luxury_Blinker_Lights_Task(void)
 										}
 										else
 										{
-											LED_OFF(BL_BL1_R);
-											LED_OFF(BL_BL2_R);
-											LED_OFF(BL_BL3_R);
+											if(lub_Counter>=3)
+											{
+												LED_OFF(BL_BL1_R);
+												LED_OFF(BL_BL2_R);
+												LED_OFF(BL_BL3_R);
+												lub_Counter=0;	
+											}
+											else
+											{
+												/* Do nothing */
+											}
 											LED_OFF(FL_BL_R);	
 										}								
 									}
@@ -638,22 +651,14 @@ void Luxury_Blinker_Lights_Task(void)
 									if(lub_on_off_Flag == ACTIVATED)
 									{
 										/* Activates the On counter and checks if the On counter  */
-										/* reached the received time to increse the counter */
-										if(rub_On_Time==0)
-										{
-											rub_On_Timer_flag=ACTIVATED;
-											lub_On_Timer_Flag=ACTIVATED;	
-										}
-										else
-										{
-											/* Do nothing */
-										}
+										/* reached the received time  */
+										rub_On_Timer_flag=ACTIVATED;
 										/* Checks if the on counter reached the received time and if it enters for first time */
-										if((lub_On_Timer >= rub_On_Time) && (lub_On_Timer_Flag==ACTIVATED))
+										if(lub_On_Timer >= rub_On_Time)
 										{
 											lub_Counter++;
-											rub_On_Timer_flag=RESTART;
-											lub_On_Timer_Flag=DEACTIVATED;
+											lub_on_off_Flag=DEACTIVATED;
+											rub_On_Timer_flag=DEACTIVATED;
 										}
 										else
 										{	
@@ -662,22 +667,22 @@ void Luxury_Blinker_Lights_Task(void)
 											{
 												/* Turn on the first led */
 												case 0:	LED_ON(BL_BL1_L);
-														LED_ON(FL_BL_L);
+														
 													break;
 												/* Turn on the second led */
 												case 1:	LED_ON(BL_BL2_L);
-														LED_OFF(FL_BL_L);
+														;
 													break;
 												/* Turn on the third led */
 												case 2:	LED_ON(BL_BL3_L);
-														LED_ON(FL_BL_L);
+														
 													break;
 												/* Restart the counters */
-												case 3:	lub_on_off_Flag=DEACTIVATED;
-														rub_On_Timer_flag=DEACTIVATED;
+												case 3:	
 														lub_Counter=0;
 													break;			
 											}
+											LED_ON(FL_BL_L);
 										}
 									}
 									/* checks if the flag is Deactivated to Turn off the blinker lights */
@@ -698,9 +703,13 @@ void Luxury_Blinker_Lights_Task(void)
 											{
 												/* Do nothing*/
 											}
-											else
+											else if(lub_Counter==0)
 											{
 												lub_Parameter=rub_Parameter;	
+											}
+											else
+											{
+												/* Do nothing */
 											}
 											/* Checks if the new command is BLINKER_HAZARD to save the turn status*/
 											if(lub_Parameter == BLINKER_HAZARD)
@@ -714,9 +723,14 @@ void Luxury_Blinker_Lights_Task(void)
 										}
 										else
 										{
-											LED_OFF(BL_BL1_L);
-											LED_OFF(BL_BL2_L);
-											LED_OFF(BL_BL3_L);
+											if(lub_Counter>=3)
+											{
+												LED_OFF(BL_BL1_L);
+												LED_OFF(BL_BL2_L);
+												LED_OFF(BL_BL3_L);
+												lub_Counter=0;
+											}
+											
 											LED_OFF(FL_BL_L);	
 										}								
 									}
@@ -816,7 +830,8 @@ void Luxury_Blinker_Lights_Task(void)
 										}								
 									}
 							break;
-						
+				default: lub_Parameter=rub_Parameter;
+					break;
 		}
 	}	
 }
@@ -849,13 +864,16 @@ void Standard_Blinker_Lights(T_UBYTE lub_Parameter, T_UBYTE lub_On_Time, T_UBYTE
  **************************************************************/
 void Standard_Blinker_Lights_Task(void)
 {
-	static T_UBYTE lub_Parameter;
+	static T_UBYTE lub_Parameter=BLINKER_HAZARD_OFF;
 	static T_UBYTE lub_Turn_Flag=OFF;
 	static T_UBYTE lub_Hazard_Flag=DEACTIVATED;
 	static T_UBYTE lub_on_off_Flag=ACTIVATED;
+	static T_UBYTE lub_On_Timer= 0;
+	static T_UBYTE lub_Off_Timer= 0;
+	
 	/* Gets the counters of On time and Off time */
-	T_UBYTE lub_On_Timer= (T_UBYTE) Get_On_Counter();
-	T_UBYTE lub_Off_Timer= (T_UBYTE) Get_Off_Counter();
+	lub_On_Timer= (T_UBYTE) Get_On_Counter();
+	lub_Off_Timer= (T_UBYTE) Get_Off_Counter();
 	/* Checks if the flag was activated to turn on the blinker lights in this mode */
 	if(rub_Standard_Flag==ACTIVATED)
 	{
@@ -1093,7 +1111,8 @@ void Standard_Blinker_Lights_Task(void)
 										}								
 									}
 							break;
-						
+				default: lub_Parameter=rub_Parameter;
+					break;		
 		}
 	}	
 }
