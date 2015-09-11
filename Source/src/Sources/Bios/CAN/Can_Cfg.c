@@ -43,7 +43,8 @@ CAN_DevBaudrateType bios_cnf_can_baudrate_options[] = {
 
 #define ECU_ID	0x007u
 #define TST_ID	0x1A9u
-
+#define LIGHTS_ID 0x005Au
+#define ID_ACU	0x204
 
 /*~E*/
 /*~A*/
@@ -52,10 +53,10 @@ CAN_ConfigMsgType bios_cnf_can_messages[] = {
 	{ 0, CNF_CAN_CH_RX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, 0x1A0,         0x1F8,      Can_Manager_PduHandler0  },
 	{ 1, CNF_CAN_CH_RX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_EXT, 0x12345600,    0x1FFFFFF8, NULL  },
 	{ 2, CNF_CAN_CH_RX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, 0x1B0,         0x000,      NULL  },
-	{ 3, CNF_CAN_CH_RX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, TST_ID,        0xFFF, 		RX_Security_Access_Response  },
+	{ 3, CNF_CAN_CH_RX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, LIGHTS_ID,     0xFFFF, 	RX_Command  },
 	{ 4, CNF_CAN_CH_TX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, ECU_ID,        0xFFF,      NULL  },
 	{ 5, CNF_CAN_CH_TX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, ECU_ID,    	0xFFF, 		NULL  },
-	{ 6, CNF_CAN_CH_TX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, ECU_ID,        0xFFF,      NULL  },
+	{ 6, CNF_CAN_CH_TX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_STD, ID_ACU,        0xFFF,      NULL  },
 	{ 7, CNF_CAN_CH_TX, CNF_CAN_DATA_FRAME, CNF_CAN_IDE_EXT, 0x123456AA,    0x1FFFFFF8, NULL  }
 };
 
@@ -71,7 +72,7 @@ CAN_ConfigDeviceType bios_cnf_can_dev[] = {
 		CNF_CAN_LBUF_ON,                                /* Lower buffer is transmitted first */
 		CNF_CAN_FIFO_DIS,                               /* FIFO Disabled */
 		CNF_CAN_IND_MASK,                               /* Filter mode Individual Mask */
-		&bios_cnf_can_baudrate_options[0],              /* CAN Baud rate Configuration */
+		&bios_cnf_can_baudrate_options[1],              /* CAN Baud rate Configuration */
 		bios_cnf_can_messages,                 			/* Configured channels for this CAN Engine */
 	}
 };

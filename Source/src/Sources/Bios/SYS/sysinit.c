@@ -117,6 +117,9 @@ void sysinit_InitSysClock(void)
 	
 	/* Disable watchdog */
 	sysinit_disableWatchdog();
+	
+	CGM.SC_DC[2].R = 0x80;          	/* MPC56xxB: Enable peri set 3 sysclk divided by 1 */
+	
 }
 
 #define CFG_RUN_MODE_1 true
@@ -155,7 +158,7 @@ void sysinit_InitMode(void)
 	/* Select FlexCAN2 to use Peripheral Configuration 0 */	
 	WRITE_ME_PCTL(PCTL_FlexCAN2, 0x0000);
 	/* Select LIN Flex 0 to use Peripheral Configuration 0 */
-	WRITE_ME_PCTL(PCTL_LINFlex0, 0x0000);
+	WRITE_ME_PCTL(PCTL_ADC0, 0x0000);
 		/* Select DPI 0 to use Peripheral Configuration 0 */
 	WRITE_ME_PCTL(PCTL_DSPI0, 0x0000);
 	/* Select DPI 0 to use Peripheral Configuration 0 */

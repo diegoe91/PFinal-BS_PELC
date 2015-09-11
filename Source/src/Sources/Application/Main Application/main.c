@@ -14,19 +14,21 @@
 int main(void) 
 
 {
-/* Mode initializations */
-sysinit_InitMode();
-/* Clock initializations */
-sysinit_InitSysClock();
-/* Memory Allcoation Initialization */
+	/*Enable peri set 1 sysclk divided by 1 */
+	
+	/* Mode initializations */
+	sysinit_InitMode();
+	/* Clock initializations */
+	sysinit_InitSysClock();
+	/* Memory Allcoation Initialization */
 	MemAllocInit(&MemAllocConfig);
 	/*Initialize LEDs on TRK-MPC560xB board */
 	vfnGPIO_LED_Init(); 
-/* SBC dependencies */
-	    InitDSPI_1();
-	    ConfigureMZC33905DSPI_1();
-/* CAN Initialization */
-CAN_Initialization(&can_driver_config);
+	/* SBC dependencies */
+	InitDSPI_1();
+	ConfigureMZC33905DSPI_1();
+	/* CAN Initialization */
+	CAN_Initialization(&can_driver_config);
 	/* Initialize Interrupts */
 	INTC_InitINTCInterrupts();
 	/*Initialize Exception Handlers */
@@ -35,6 +37,10 @@ CAN_Initialization(&can_driver_config);
 	SchM_Init(&SchMConfig);
     /* Enable External Interrupts*/
     enableIrq();
+    /*Selection of type of Car*/
+    Light_Ctrl_HwConfig();
+    
+    init_ADC0_P0();
     /* SchM Start */
     SchM_Start();
 	/* Infinite loop - Should never reach this point */

@@ -31,6 +31,33 @@
 #define LED3       					70
 #define LED4        				71
 #define BUTTON4						67
+#define SWITCH1						102
+
+#define GPIO_PA0					0
+#define GPIO_PA1					1
+#define GPIO_PA2					2
+#define GPIO_PA3				    3
+#define GPIO_PA4					4
+#define GPIO_PA5					5
+#define GPIO_PA6					6
+#define GPIO_PA7					7
+#define GPIO_PA8					8
+#define GPIO_PA9					9
+#define GPIO_PA10					10
+#define GPIO_PA11					11
+#define GPIO_PA12					12
+#define GPIO_PA13					13
+#define GPIO_PA14					14
+#define GPIO_PA15					15
+#define GPIO_PC2					34
+#define GPIO_PC3					35
+#define GPIO_PC4					36
+#define GPIO_PC5					37
+#define GPIO_PC6					38
+#define GPIO_PC7					39
+#define GPIO_PC8					40
+
+
 
 
 #define GPIO_INPUT					0
@@ -43,9 +70,9 @@
 /* Indicator LEDs handling */
 
 /** Set LED */ 
-#define LED_ON(channel)                     (SIU.GPDO[channel].B.PDO =  0)
+#define LED_ON(channel)                     (SIU.GPDO[channel].B.PDO =  1)
 /** Clear LED */ 
-#define LED_OFF(channel)                    (SIU.GPDO[channel].B.PDO =  1)
+#define LED_OFF(channel)                    (SIU.GPDO[channel].B.PDO =  0)
 /** Toggle LED */ 
 #define LED_TOGGLE(channel)                 (SIU.GPDO[channel].B.PDO ^= 1) 
 
