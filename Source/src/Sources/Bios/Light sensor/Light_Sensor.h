@@ -77,6 +77,7 @@ typedef enum
 /* Functions prototypes */
 
 extern T_UBYTE Get_Threshold(void);
+extern void Light_Thresholds(void);
 
 /* Functions macros */
 

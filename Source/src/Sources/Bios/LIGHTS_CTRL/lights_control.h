@@ -90,8 +90,8 @@ extern T_UBYTE Command_Stop(void);
 extern T_UBYTE Command_Turn(void);
 extern T_UBYTE Command_Hazard(void);
 extern T_UBYTE Command_Mainlight(void);
-extern void lights_control_SM(void);
 extern void Main_Ligths_Auto_Mode(void);
+extern void Light_Ctrl_HwConfig(void);
 /* Functions macros */
 
 
